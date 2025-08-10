@@ -13,8 +13,53 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CreditMatch",
-  description: "Match adverse credit applicants with suitable lenders.",
+  title: "CreditMatch – Smart Adverse Credit Assessment",
+  description:
+    "CreditMatch helps lenders assess adverse credit history with precision rules, limits, and instant decision support.",
+  keywords: [
+    "adverse credit",
+    "credit assessment",
+    "loan eligibility",
+    "lender rules",
+    "financial risk analysis",
+  ],
+  authors: [{ name: "CreditMatch" }],
+  metadataBase: new URL("https://adverse-credit-assessment.vercel.app"),
+  openGraph: {
+    title: "CreditMatch – Smart Adverse Credit Assessment",
+    description:
+      "CreditMatch helps lenders assess adverse credit history with precision rules, limits, and instant decision support.",
+    url: "https://adverse-credit-assessment.vercel.app",
+    siteName: "CreditMatch",
+    images: [
+      {
+        url: "/ss.webp",
+        width: 1200,
+        height: 630,
+        alt: "CreditMatch",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CreditMatch – Smart Adverse Credit Assessment",
+    description:
+      "CreditMatch helps lenders assess adverse credit history with precision rules, limits, and instant decision support.",
+    images: ["/ss.webp"],
+    creator: "@kirihararyoji", // optional
+  },
+  themeColor: "#0066cc",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({
