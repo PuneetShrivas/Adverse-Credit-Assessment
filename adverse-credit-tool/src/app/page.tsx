@@ -156,7 +156,7 @@ const WobbleCards = () => {
           width={500}
           height={500}
           alt="CreditMatch demo image"
-          className="fixed -right-4 lg:-right-[40%] grayscale filter -bottom-10 object-contain rounded-2xl"
+          className="fixed -right-4 lg:-right-[60%] grayscale filter -bottom-2 object-contain rounded-2xl"
         />
       </WobbleCard>
       <WobbleCard containerClassName="col-span-1 min-h-[300px]">

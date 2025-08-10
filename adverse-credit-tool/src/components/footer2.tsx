@@ -26,66 +26,60 @@ interface Footer2Props {
 
 const Footer2 = ({
   logo = {
-    src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/block-1.svg",
-    alt: "blocks for shadcn/ui",
-    title: "Shadcnblocks.com",
-    url: "https://www.shadcnblocks.com",
+    src: "/favicon.ico",
+    alt: "CreditMatch logo",
+    title: "CreditMatch",
+    url: "https://adverse-credit-assessment.vercel.app",
   },
-  tagline = "",
+  tagline = "Smart Adverse Credit Assessment for Lenders",
   menuItems = [
     {
       title: "Product",
       links: [
-        { text: "Overview", url: "#" },
-        { text: "Pricing", url: "#" },
-        { text: "Marketplace", url: "#" },
-        { text: "Features", url: "#" },
-        { text: "Integrations", url: "#" },
-        { text: "Pricing", url: "#" },
+        { text: "Overview", url: "/" },
+        { text: "How It Works", url: "/how-it-works" },
+        { text: "Pricing", url: "/pricing" },
+        { text: "FAQ", url: "/faq" },
       ],
     },
     {
       title: "Company",
       links: [
-        { text: "About", url: "#" },
-        { text: "Team", url: "#" },
-        { text: "Blog", url: "#" },
-        { text: "Careers", url: "#" },
-        { text: "Contact", url: "#" },
-        { text: "Privacy", url: "#" },
+        { text: "About", url: "/about" },
+        { text: "Contact", url: "/contact" },
+        { text: "Blog", url: "/blog" },
       ],
     },
     {
       title: "Resources",
       links: [
-        { text: "Help", url: "#" },
-        { text: "Sales", url: "#" },
-        { text: "Advertise", url: "#" },
+        { text: "Help Center", url: "/help" },
+        { text: "Documentation", url: "/docs" },
+        { text: "API Reference", url: "/api" },
       ],
     },
     {
       title: "Social",
       links: [
-        { text: "Twitter", url: "#" },
-        { text: "Instagram", url: "#" },
-        { text: "LinkedIn", url: "#" },
+        { text: "Twitter", url: "https://twitter.com/kirihararyoji" },
+        { text: "LinkedIn", url: "https://linkedin.com/company/creditmatch" },
       ],
     },
   ],
-  copyright = "© 2024 Shadcnblocks.com. All rights reserved.",
+  copyright = "© 2024 CreditMatch. All rights reserved.",
   bottomLinks = [
-    { text: "Terms and Conditions", url: "#" },
-    { text: "Privacy Policy", url: "#" },
+    { text: "Terms and Conditions", url: "/terms" },
+    { text: "Privacy Policy", url: "/privacy" },
   ],
 }: Footer2Props) => {
   return (
-    <section className=" mx-10">
-      <div className="container border-t ">
+    <section className="mx-10">
+      <div className="container border-t">
         <footer>
-          <div className=" pt-6 grid grid-cols-2 gap-8 lg:grid-cols-6">
+          <div className="pt-6 grid grid-cols-2 gap-8 lg:grid-cols-6">
             <div className="col-span-2 mb-8 lg:mb-0">
               <div className="flex items-center gap-2 lg:justify-start">
-                <Logo url="https://shadcnblocks.com">
+                <Logo url={logo.url}>
                   <LogoImage
                     src={logo.src}
                     alt={logo.alt}
