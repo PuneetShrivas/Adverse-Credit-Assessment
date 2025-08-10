@@ -1,13 +1,17 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { useTheme } from "next-themes";
 import React, { useMemo, useRef } from "react";
 import * as THREE from "three";
 
 export const CanvasRevealEffect = ({
   animationSpeed = 0.4,
   opacities = [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1],
-  colors = [[0, 255, 255]],
+  colors = [
+    [0, 255, 255], // cyan for light mode
+    [147, 51, 234], // purple for dark mode
+  ],
   containerClassName,
   dotSize,
   showGradient = true,
@@ -23,11 +27,23 @@ export const CanvasRevealEffect = ({
   dotSize?: number;
   showGradient?: boolean;
 }) => {
+  const { theme } = useTheme();
+  
+  // Default theme-aware colors if none provided
+  const themeColors = useMemo(() => {
+    if (colors && colors.length > 0) return colors;
+    
+    // Default colors based on theme
+    return theme === "dark" 
+      ? [[147, 51, 234]] // purple for dark
+      : [[0, 255, 255]]; // cyan for light
+  }, [colors, theme]);
+
   return (
-    <div className={cn("h-full relative bg-white w-full", containerClassName)}>
+    <div className={cn("h-full relative bg-background w-full", containerClassName)}>
       <div className="h-full w-full">
         <DotMatrix
-          colors={colors ?? [[0, 255, 255]]}
+          colors={themeColors}
           dotSize={dotSize ?? 3}
           opacities={
             opacities ?? [0.3, 0.3, 0.3, 0.5, 0.5, 0.5, 0.8, 0.8, 0.8, 1]
@@ -41,8 +57,8 @@ export const CanvasRevealEffect = ({
           center={["x", "y"]}
         />
       </div>
-      {showGradient && (
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-950 to-[84%]" />
+{showGradient && theme === "dark" && (
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-[84%]" />
       )}
     </div>
   );
@@ -181,6 +197,7 @@ type Uniforms = {
     type: string;
   };
 };
+
 const ShaderMaterial = ({
   source,
   uniforms,
@@ -291,11 +308,12 @@ const ShaderMaterial = ({
 
 const Shader: React.FC<ShaderProps> = ({ source, uniforms, maxFps = 60 }) => {
   return (
-    <Canvas className="absolute inset-0  h-full w-full">
+    <Canvas className="absolute inset-0 h-full w-full">
       <ShaderMaterial source={source} uniforms={uniforms} maxFps={maxFps} />
     </Canvas>
   );
 };
+
 interface ShaderProps {
   source: string;
   uniforms: {
