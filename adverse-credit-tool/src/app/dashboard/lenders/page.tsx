@@ -33,7 +33,7 @@ const badgeClass = (type: string) =>
   type === "Repossessions" ? "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-50" : "";
 
 import { useState as useLocalState, useRef as useLocalRef } from "react";
-let globalSetDialog: any = null;
+const globalSetDialog: any = null;
 const CriteriaDialog = ({ open, onClose, crit, type }: { open: boolean, onClose: () => void, crit: Criteria, type: string }) => {
   const dialogRef = useLocalRef<HTMLDivElement>(null);
   // Close on outside click
