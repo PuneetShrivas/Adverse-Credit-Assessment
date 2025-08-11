@@ -32,22 +32,78 @@ const badgeClass = (type: string) =>
   type === "IVA" ? "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-50" :
   type === "Repossessions" ? "bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-50" : "";
 
-const renderCriteriaCell = (crit: Criteria, type: string) => (
-  <div className="text-xs space-y-1">
-    <div><span className="font-medium">max_amount:</span> {crit.max_amount}</div>
-    <div><span className="font-medium">max_count:</span> {crit.max_count}</div>
-    <div><span className="font-medium">max_age_months:</span> {crit.max_age_months}</div>
-    <div><span className="font-medium">status:</span> <span className="capitalize">{crit.status}</span></div>
-    {"discharge_period_months" in crit && (
-      <div><span className="font-medium">discharge_period_months:</span> {(crit as any).discharge_period_months}</div>
-    )}
-    {"arrears_tolerance" in crit && crit.arrears_tolerance && (
-      <div>
-        <span className="font-medium">arrears_tolerance:</span> months: {crit.arrears_tolerance.months}, count: {crit.arrears_tolerance.count}
+import { useState as useLocalState, useRef as useLocalRef } from "react";
+let globalSetDialog: any = null;
+const CriteriaDialog = ({ open, onClose, crit, type }: { open: boolean, onClose: () => void, crit: Criteria, type: string }) => {
+  const dialogRef = useLocalRef<HTMLDivElement>(null);
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    function handle(e: MouseEvent) {
+      if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) onClose();
+    }
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in">
+      <div ref={dialogRef} className="bg-white dark:bg-zinc-900 rounded-lg shadow-2xl p-6 min-w-[320px] max-w-[90vw] relative animate-fade-in">
+        <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-900 dark:hover:text-white" onClick={onClose} aria-label="Close">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M6 6l12 12M6 18L18 6"/></svg>
+        </button>
+        <div className="flex flex-col gap-2">
+          <span className="font-bold text-lg mb-2">{type} Details</span>
+          <div className="text-sm space-y-1">
+            <div><span className="font-medium">max_amount:</span> {crit.max_amount}</div>
+            <div><span className="font-medium">max_count:</span> {crit.max_count}</div>
+            <div><span className="font-medium">max_age_months:</span> {crit.max_age_months}</div>
+            <div><span className="font-medium">status:</span> <span className="capitalize">{crit.status}</span></div>
+            {"discharge_period_months" in crit && (
+              <div><span className="font-medium">discharge_period_months:</span> {(crit as any).discharge_period_months}</div>
+            )}
+            {"arrears_tolerance" in crit && crit.arrears_tolerance && (
+              <div>
+                <span className="font-medium">arrears_tolerance:</span> months: {crit.arrears_tolerance.months}, count: {crit.arrears_tolerance.count}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
-    )}
-  </div>
-);
+    </div>
+  );
+};
+
+let setDialogState: any = null;
+const renderCriteriaCell = (crit: Criteria, type: string) => {
+  // Use a global dialog state for all cards
+  if (!setDialogState) return null;
+  return (
+    <div
+      className="cursor-pointer h-full rounded-lg border p-2 shadow-sm bg-white dark:bg-zinc-900 hover:shadow-md transition-all duration-300"
+      onClick={() => setDialogState({ open: true, crit, type })}
+      style={{ minWidth: 120 }}
+    >
+      <div className="flex items-center justify-between">
+        <span className="font-semibold text-xs">{type}</span>
+      </div>
+      <div className="text-xs space-y-1">
+        <div><span className="font-medium">max_amount:</span> {crit.max_amount}</div>
+        <div><span className="font-medium">max_count:</span> {crit.max_count}</div>
+        <div><span className="font-medium">max_age_months:</span> {crit.max_age_months}</div>
+        <div><span className="font-medium">status:</span> <span className="capitalize">{crit.status}</span></div>
+        {"discharge_period_months" in crit && (
+          <div><span className="font-medium">discharge_period_months:</span> {(crit as any).discharge_period_months}</div>
+        )}
+        {"arrears_tolerance" in crit && crit.arrears_tolerance && (
+          <div>
+            <span className="font-medium">arrears_tolerance:</span> months: {crit.arrears_tolerance.months}, count: {crit.arrears_tolerance.count}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 const lenderColumns = (onEdit: (l: Lender) => void, isAdmin: boolean): ColumnDef<Lender>[] => [
   { accessorKey: "name", header: "Name" },
@@ -218,8 +274,12 @@ export default function LendersPage() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+  // Dialog state for criteria expansion
+  const [dialog, setDialog] = useLocalState<{ open: boolean, crit?: Criteria, type?: string }>({ open: false });
+  setDialogState = setDialog;
+  
   return (
-  <div className="p-6 space-y-6" ref={tableRef}>
+    <div className="p-6 space-y-6" ref={tableRef}>
       <div className="flex justify-between items-center flex-wrap gap-2">
         <h2 className="text-xl font-semibold">Lenders</h2>
         <div className="flex gap-2">
@@ -253,6 +313,7 @@ export default function LendersPage() {
                       <Card key={type} className="p-6 space-y-2 border w-full min-w-[250px]  max-w-full">
                         <h3 className="font-semibold mb-2">{type}</h3>
                         <div className="grid grid-cols-2 gap-3">
+                          {/* ...existing code... */}
                           <div>
                             <label className="block text-sm mb-1">Max Amount</label>
                             <Input
@@ -382,48 +443,62 @@ export default function LendersPage() {
             </Dialog>
           )}
         </div>
-      {/* Table */}
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <TableHead
-                  key={header.id}
-                  onClick={header.column.getToggleSortingHandler()}
-                  className="cursor-pointer select-none"
-                >
-                  {flexRender(header.column.columnDef.header, header.getContext())}
-                  {{
-                    asc: " ▲",
-                    desc: " ▼",
-                  }[header.column.getIsSorted() as string] ?? null}
-                </TableHead>
+      </div>
+      {/* Loading animation */}
+      {loading ? (
+        <div className="flex justify-center items-center h-40">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-purple-500"></div>
+        </div>
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map(headerGroup => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map(header => (
+                    <TableHead
+                      key={header.id}
+                      onClick={header.column.getToggleSortingHandler()}
+                      className="cursor-pointer select-none"
+                    >
+                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      {{
+                        asc: " ▲",
+                        desc: " ▼",
+                      }[header.column.getIsSorted() as string] ?? null}
+                    </TableHead>
+                  ))}
+                </TableRow>
               ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.length ? (
-            table.getRowModel().rows.map(row => (
-              <TableRow key={row.id}>
-                {row.getVisibleCells().map(cell => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map(row => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center">
+                    No results.
                   </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={3} className="text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <CriteriaDialog
+            open={dialog.open}
+            onClose={() => setDialog({ open: false })}
+            crit={dialog.crit ?? defaultCriteria().CCJs}
+            type={dialog.type ?? "CCJs"}
+          />
+        </>
+      )}
     </div>
   );
 }
